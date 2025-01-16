@@ -1,0 +1,14 @@
+model
+    schema 1.1
+
+  type user
+  type file
+    relations
+      define owner: [user]
+      define editor: [user] or owner
+      define viewer: [user] or editor
+      
+      define can_delete: owner
+      define can_share: editor
+      define can_edit: editor
+      define can_view: viewer

@@ -1,0 +1,12 @@
+model
+    schema 1.1
+
+  type user
+  type account
+    relations
+      define owner: [user]
+      define guardian: [user]
+      define viewer: owner or guardian
+      
+      define can_transfer: owner
+      define can_view: viewer

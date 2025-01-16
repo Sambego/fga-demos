@@ -1,0 +1,61 @@
+name: Drive
+
+model: |
+  model
+    schema 1.1
+
+  type user
+  type file
+    relations
+      define owner: [user]
+      define editor: [user] or owner
+      define viewer: [user] or editor
+      
+      define can_delete: owner
+      define can_share: editor
+      define can_edit: editor
+      define can_view: viewer
+
+tuples:
+  - user: user:sam
+    relation: owner
+    object: file:1
+
+  - user: user:chiara
+    relation: editor
+    object: file:1
+
+  - user: user:ada
+    relation: viewer
+    object: file:1
+
+tests:
+  - name: Owners can share, edit, delete and view
+    check:
+      - user: user:sam
+        object: file:1
+        assertions:
+          can_delete: true
+          can_share: true
+          can_edit: true
+          can_view: true
+
+  - name: Editors can share, edit and view
+    check:
+      - user: user:chiara
+        object: file:1
+        assertions:
+          can_delete: false
+          can_share: true
+          can_edit: true
+          can_view: true
+
+  - name: Viewers can view
+    check:
+      - user: user:ada
+        object: file:1
+        assertions:
+          can_delete: false
+          can_share: false
+          can_edit: false
+          can_view: true
