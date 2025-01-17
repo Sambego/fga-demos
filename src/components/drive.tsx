@@ -22,6 +22,7 @@ export default function Drive({
         <TableRow>
           <TableHead>File</TableHead>
           <TableHead>Type</TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

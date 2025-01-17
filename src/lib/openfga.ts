@@ -98,10 +98,56 @@ export async function checkFgaUserPermissionsForFile(
         relation: permission,
         object: `file:${file}`,
       })
-    ) as ClientBatchCheckRequest
+    ) as ClientBatchCheckRequest,
+    {
+      storeId: process.env.FGA_DRIVE_STORE,
+      authorizationModelId: process.env.FGA_DRIVE_MODEL,
+    }
   );
   return checkResults.responses.reduce(
-    (p, checkResult, i) => ({ ...p, [permissions[i]]: checkResult.allowed }),
+    (p, checkResult, i) => ({
+      ...p,
+      [permissions[i]]: !!checkResult.allowed,
+    }),
     {}
   );
+}
+
+export async function getFgaBankAccountsForUser(user: string, year: number) {
+  const date = new Date();
+  const accounts = await openFga.listObjects(
+    {
+      user: `user:${user}`,
+      relation: "viewer",
+      type: "account",
+      context: {
+        current_date: new Date(
+          `${year}-${date.getMonth() + 1}-${date.getDate()}`
+        ),
+      },
+    },
+    {
+      storeId: process.env.FGA_BANK_STORE,
+      authorizationModelId: process.env.FGA_BANK_MODEL,
+    }
+  );
+  return accounts?.objects?.map((account) => account.replace("account:", ""));
+}
+
+export async function getFgaHealthRecordssForUser(
+  user: string,
+  doctor: boolean
+) {
+  const records = await openFga.listObjects(
+    {
+      user: doctor ? `doctor:${user}` : `patient:${user}`,
+      relation: "viewer",
+      type: "record",
+    },
+    {
+      storeId: process.env.FGA_HEALTH_STORE,
+      authorizationModelId: process.env.FGA_HEALTH_MODEL,
+    }
+  );
+  return records?.objects?.map((record) => record.replace("record:", ""));
 }

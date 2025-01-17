@@ -7,6 +7,21 @@ import { Suspense, useEffect, useState } from "react";
 import { User } from "@/data/user";
 import { File } from "@/data/files";
 import { CircleOff, HardDrive } from "lucide-react";
+import ModelPreview from "@/components/model-preview";
+
+const modelPreview = `model
+  schema 1.1
+    type user
+    type file
+      relations
+        define owner: [user]
+        define editor: [user] or owner
+        define viewer: [user] or editor
+      
+        define can_delete: owner
+        define can_share: editor
+        define can_edit: editor
+        define can_view: viewer`;
 
 export const dynamic = "force-dynamic";
 export default function Home() {
@@ -27,8 +42,8 @@ export default function Home() {
   }, [currentUser]);
 
   return (
-    <div className="">
-      <div className="flex flex-row justify-items-end items-end w-[400px]">
+    <div className="w-full">
+      <div className="flex flex-row justify-items-end items-end mb-4">
         <div className="flex items-center">
           <HardDrive className="inline-block mr-2" />
           <p className="text-xl font-bold tracking-wide">FGA Drive</p>
@@ -41,7 +56,7 @@ export default function Home() {
           />
         </div>
       </div>
-      <div className="border rounded-lg my-4 w-[400px]">
+      <div className="border rounded-lg">
         {files.length ? (
           <Drive files={files} currentUser={currentUser} />
         ) : (
@@ -51,6 +66,7 @@ export default function Home() {
           </p>
         )}
       </div>
+      <ModelPreview model={modelPreview} />
     </div>
   );
 }

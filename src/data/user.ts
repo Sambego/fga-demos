@@ -2,23 +2,27 @@ export type User = {
   id: string;
   name: string;
   email: string;
+  child?: boolean;
+  doctor?: boolean;
 };
 
 export const users: User[] = [
   {
-    id: "1",
+    id: "sam",
     name: "Sam",
-    email: "sam@openfga.dev",
+    email: "sam@example.com",
+    doctor: true,
   },
   {
-    id: "2",
+    id: "chiara",
     name: "Chiara",
-    email: "Chiara@openfga.dev",
+    email: "chiara@example.com",
   },
   {
-    id: "3",
-    name: "Ada",
-    email: "ada@openfga.dev",
+    id: "jane",
+    name: "Jane",
+    email: "jane.doe@example.com",
+    child: true,
   },
 ];
 

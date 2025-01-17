@@ -1,12 +1,18 @@
 model
-    schema 1.1
+  schema 1.1
 
   type user
+    relations
+      define guardian: [user with date_based_grant]
+
   type account
     relations
       define owner: [user]
-      define guardian: [user]
-      define viewer: owner or guardian
+      define viewer: owner or guardian from owner
       
       define can_transfer: owner
       define can_view: viewer
+  
+  condition date_based_grant(current_date: timestamp, birth_date: timestamp, grant_duration: duration) {
+     current_date < birth_date + grant_duration
+  }

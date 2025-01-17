@@ -8,6 +8,7 @@ import {
   Share,
   Trash2,
   Check,
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ import { checkUserPermissionsForFile, getRolesForFile } from "@/app/actions";
 import RoleSelect from "./permission-select";
 import { useEffect, useState } from "react";
 import { File } from "@/data/files";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export type RolesState = "none" | "fetched" | "stale";
 export type PermissionsState = "none" | "fetched" | "stale";
@@ -49,13 +51,20 @@ export default function FileComponeny({
   const [dialogState, setDialogState] = useState<DialogState>("closed");
 
   useEffect(() => {
-    if (rolesState === "stale" || permissionsState === "stale") {
-      handleFetchRolesAndPermissionsForFile();
+    if (
+      rolesState === "stale" ||
+      permissionsState === "stale" ||
+      rolesState === "none" ||
+      permissionsState === "none"
+    ) {
+      handleFetchRolesForFile();
+      handleFetchPermissionsForFile();
     }
   }, [rolesState, permissionsState]);
 
   useEffect(() => {
-    handleFetchRolesAndPermissionsForFile();
+    handleFetchRolesForFile();
+    handleFetchPermissionsForFile();
   }, [currentUser]);
 
   const getUserRoleForFile = (user: string) => {
@@ -84,22 +93,19 @@ export default function FileComponeny({
     }
   };
 
-  const handleFetchRolesAndPermissionsForFile = async () => {
-    // if (rolesState === "none" || rolesState === "stale") {
+  const handleFetchRolesForFile = async () => {
     const roles = await getRolesForFile(file.id);
     setRoles(roles);
     setRolesState("fetched");
-    // }
-
-    // if (permissionsState === "none" || permissionsState === "stale") {
+  };
+  const handleFetchPermissionsForFile = async () => {
     const permissions = await checkUserPermissionsForFile(
       file.id,
       currentUser,
-      ["can_delete", "can_share"]
+      ["can_delete", "can_share", "can_edit"]
     );
     setPermissions(permissions);
     setPermissionsState("fetched");
-    // }
   };
 
   const handleRoleChange = () => {
@@ -111,7 +117,10 @@ export default function FileComponeny({
     <>
       <TableRow
         key={file.id}
-        onPointerEnter={() => handleFetchRolesAndPermissionsForFile()}
+        onPointerEnter={() => {
+          handleFetchRolesForFile();
+          handleFetchPermissionsForFile();
+        }}
       >
         <TableCell>{renderTypeIcon(file.type)}</TableCell>
         <TableCell>{file.name}</TableCell>
@@ -126,19 +135,22 @@ export default function FileComponeny({
 
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
+              <DropdownMenuSeparator className="border-b-[1px]" />
               <DropdownMenuItem
                 onClick={() => setDialogState("open")}
                 disabled={!permissions?.can_share}
               >
-                <Share /> Share item
+                <Share /> Share file
               </DropdownMenuItem>
-
+              <DropdownMenuSeparator className="border-b-[1px]" />
+              <DropdownMenuItem disabled={!permissions?.can_edit}>
+                <Edit /> Edit file
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-red-700"
                 disabled={!permissions?.can_delete}
               >
-                <Trash2 /> Delete item
+                <Trash2 /> Delete file
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

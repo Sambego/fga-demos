@@ -71,8 +71,8 @@ export default function RoleSelect({
         <DropdownMenuRadioGroup value={role} onValueChange={setRole}>
           <DropdownMenuRadioItem value="none">
             <div>
-              <p>Not shared</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-bold text-sm">Not shared</p>
+              <p className="text-xs text-muted-foreground">
                 <strong>Don't share</strong> this file
               </p>
             </div>
@@ -80,16 +80,16 @@ export default function RoleSelect({
           <DropdownMenuSeparator />
           <DropdownMenuRadioItem className="text-left" value="viewer">
             <div>
-              <p>Viewer</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-bold text-sm">Viewer</p>
+              <p className="text-xs text-muted-foreground">
                 Can <strong>view</strong> the content of this file
               </p>
             </div>
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem className="text-left" value="editor">
             <div>
-              <p>Editor</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-bold text-sm">Editor</p>
+              <p className="text-xs text-muted-foreground">
                 Can <strong>view</strong>, <strong>edit</strong>, and{" "}
                 <strong>share</strong> this file
               </p>
@@ -97,8 +97,8 @@ export default function RoleSelect({
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem className="text-left" value="owner">
             <div>
-              <p>Owner</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-bold text-sm">Owner</p>
+              <p className="text-xs text-muted-foreground">
                 Can <strong>view</strong>, <strong>edit</strong>,{" "}
                 <strong>share</strong> and <strong>delete</strong> this file
               </p>

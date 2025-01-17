@@ -1,0 +1,23 @@
+model
+  schema 1.1
+  
+  type jurisdiction
+    relations
+      define doctor: [doctor]
+
+  type doctor
+  
+  type patient
+    relations
+      define guardian: [patient]
+
+  type record
+    relations
+      define jurisdiction: [jurisdiction]
+      define owner: [patient]
+      define viewer: owner or guardian from owner or doctor
+      define doctor: [doctor] or doctor from jurisdiction
+      
+      define can_view: viewer
+      define can_edit: doctor
+  

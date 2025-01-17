@@ -25,7 +25,7 @@ tuples:
     relation: editor
     object: file:1
 
-  - user: user:ada
+  - user: user:chiara
     relation: viewer
     object: file:1
 
@@ -52,7 +52,7 @@ tests:
 
   - name: Viewers can view
     check:
-      - user: user:ada
+      - user: user:jane
         object: file:1
         assertions:
           can_delete: false

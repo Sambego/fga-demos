@@ -7,8 +7,11 @@ import {
   addFgaRoleForFile,
   removeFgaRoleForFile,
   checkFgaUserPermissionsForFile,
+  getFgaBankAccountsForUser,
+  getFgaHealthRecordssForUser,
 } from "../lib/openfga";
 import { files, File } from "@/data/files";
+import { healthRecords } from "@/data/health-records";
 
 export async function getFiles(user: string): Promise<Array<File>> {
   const assignedFiles = await getFgaFilesForUser(user);
@@ -36,11 +39,22 @@ export async function checkUserPermissionsForFile(
   user: string,
   permissions: Array<string>
 ) {
-  const foo = await checkFgaUserPermissionsForFile(file, user, permissions);
-  console.log("batchchek", foo);
-  return foo;
+  return await checkFgaUserPermissionsForFile(file, user, permissions);
 }
 
-export async function getBankAccounts(user: string): Promise<BankAccount[]> {
-  return bankAccounts.filter((bc) => bc.owner === user);
+export async function getBankAccounts(
+  user: string,
+  year: number
+): Promise<BankAccount[]> {
+  const assignedBankAccounts = await getFgaBankAccountsForUser(user, year);
+  return bankAccounts.filter((account) =>
+    assignedBankAccounts.includes(account.id)
+  );
+}
+
+export async function getHealthReports(user: string, doctor: boolean) {
+  const assignedHealthRecords = await getFgaHealthRecordssForUser(user, doctor);
+  return healthRecords.filter((record) =>
+    assignedHealthRecords.includes(record.id)
+  );
 }
