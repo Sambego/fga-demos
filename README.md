@@ -1,8 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This application has a few small demos illustrating how to leverage OpenFGA to deal with authorizaion.
 
 ## Getting Started
 
-First, run the development server:
+
+### Start your OpenFGA server
+Make sure you've installed OpenFGA. More info at [https://openfga.dev/docs/getting-started/setup-openfga/overview](https://openfga.dev/docs/getting-started/setup-openfga/overviewdocs)
+```
+docker run -p 8080:8080 -p 8081:8081 -p 3000:3000 openfga/openfga run
+```
+
+### Create a .env file
+
+Copy the `.env.sample` file and add the OpenFGA url. You should only do this once, the first time you setup the project.
+
+```
+cp .env.sample .env.local
+```
+
+### Start your development server
 
 ```bash
 npm run dev
@@ -14,23 +29,28 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This will first run a setup script to create the demo OpenFGA stores, models, and populate them with some example tuples.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Demo applications
 
-## Learn More
+### Online drive
+This is a simple Google drive clone, that let's you share files and folders with other users. When sharing you have the option to assign roles like viewer, editor or owner to these files.
 
-To learn more about Next.js, take a look at the following resources:
+![screenshot of the main drive interface](./screenshots/drive-1.png)
+![screenshot of the share interface](./screenshots/drive-2.png)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Banking application
+This application lets users see their checking and saving accounts. If you are a parent, you can also view your children's accounts until they turn 18.
+Toggle the switch at the bottom to fast forward in time, 18 years from now.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+![screenshot of the banking interface](./screenshots/bank.png)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Healt record viewer
+This demo lets you view health records for each user.
+- Doctors can view all records of patients in their jurisdiction, like city, state or country.
+- Parents can view their own records as well as their children's
+- All other users can only view their own records
+- 
+![screenshot of the health app interface](./screenshots/health.png)
