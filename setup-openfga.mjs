@@ -14,12 +14,17 @@ export async function setupOpenFGA() {
   const driveStoreName = "FGA Drive";
   const bankStoreName = "FGA Bank";
   const healthStoreName = "FGA Health";
+  const ragStoreName = "FGA AI - RAG";
+
   let driveStore;
   let bankStore;
   let healthStore;
+  let ragStore;
+
   let driveModel;
   let bankModel;
   let healthModel;
+  let ragModel;
 
   try {
     const createStore = async (name) => {
@@ -59,6 +64,7 @@ export async function setupOpenFGA() {
     };
 
     const stores = await openFga.listStores();
+    console.log(JSON.stringify(stores))
     if (stores.stores.length > 0) {
       driveStore = stores.stores.find(
         (store) => store.id === process.env.FGA_DRIVE_STORE
@@ -72,10 +78,15 @@ export async function setupOpenFGA() {
         (store) => store.id === process.env.FGA_HEALTH_STORE
       )?.id;
       console.log(`- ${brandName} Health store: ${healthStore}`);
+      ragStore = stores.stores.find(
+        (store) => store.id === process.env.FGA_RAG_STORE
+      )?.id;
+      console.log(`- ${brandName} RAG store: ${ragStore}`);
     } else {
       driveStore = await createStore(driveStoreName);
       bankStore = await createStore(bankStoreName);
       healthStore = await createStore(healthStoreName);
+      ragStore = await createStore(ragStoreName);
     }
 
     const driveModels = await openFga.readAuthorizationModels({
@@ -213,9 +224,45 @@ export async function setupOpenFGA() {
       ]);
     }
 
+    // AI model 
+
+     const ragModels = await openFga.readAuthorizationModels({
+      storeId: ragStore,
+    });
+
+    if (ragModels.authorization_models.length > 0) {
+      ragModel = healthModels.authorization_models[0]?.id;
+      console.log(`- ${brandName} RAG model: ${ragModel}`);
+    } else {
+      const ragModelJSON = await readFile(
+        process.cwd() + "/openfga/rag.model.json",
+        "utf8"
+      );
+
+      ragModel = await createModel(
+        ragStore,
+        ragModelJSON,
+        ragStoreName
+      );
+
+      await writeInitialTuples(ragStore, ragModel, ragStoreName, [
+        {
+          user: "user:*",
+          relation: "viewer",
+          object: "doc:public-doc",
+        },
+        {
+          user: "user:subscriber",
+          relation: "viewer",
+          object: "doc:private-doc",
+        },
+      ]);
+    }
+
+
     await writeFile(
       "./.env.local",
-      `FGA_API_URL=${process.env.FGA_API_URL}\nFGA_BRAND=${process.env.FGA_BRAND || 'OpenFGA'}\nFGA_DRIVE_STORE=${driveStore}\nFGA_DRIVE_MODEL=${driveModel}\nFGA_BANK_STORE=${bankStore}\nFGA_BANK_MODEL=${bankModel}\nFGA_HEALTH_STORE=${healthStore}\nFGA_HEALTH_MODEL=${healthModel}`
+      `FGA_API_URL=${process.env.FGA_API_URL}\nOPENAI_API_KEY=${process.env.OPENAI_API_KEY}\nFGA_BRAND=${process.env.FGA_BRAND || 'OpenFGA'}\nFGA_DRIVE_STORE=${driveStore}\nFGA_DRIVE_MODEL=${driveModel}\nFGA_BANK_STORE=${bankStore}\nFGA_BANK_MODEL=${bankModel}\nFGA_HEALTH_STORE=${healthStore}\nFGA_HEALTH_MODEL=${healthModel}\nFGA_RAG_STORE=${ragStore}\nFGA_RAG_MODEL=${ragModel}`
     );
   } catch (error) {
     console.error(error);
