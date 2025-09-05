@@ -111,7 +111,6 @@ export async function queryDocumentsWithFGA(
     // 1. Read and load documents from the assets folder
     const documents = await readDocuments();
     
-    console.log(JSON.stringify(documents));
     // 2. Create an in-memory vector store from the documents for OpenAI models.
     const vectorStore = await MemoryVectorStore.fromDocuments(
       documents,
