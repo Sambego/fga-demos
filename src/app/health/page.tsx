@@ -6,10 +6,26 @@ import { User } from "@/data/user";
 import { CircleOff, HeartPulse } from "lucide-react";
 import HealthRecords from "@/components/health-records";
 import { HealthRecord } from "@/data/health-records";
-import { getHealthReports } from "../actions";
+import { getHealthReports, getHealthModel } from "../actions";
 import ModelPreview from "@/components/model-preview";
 
-const modelPreview = `model
+export const dynamic = "force-dynamic";
+export default function Health() {
+  const [currentUser, setCurrentUser] = useState<User>(getCurrentUser());
+  const [users] = useState<User[]>(getUsers());
+  const [healthRecords, setHealthRecords] = useState<Array<HealthRecord>>([]);
+  const [modelContent, setModelContent] = useState<string>("");
+
+  // Load the FGA model content on component mount
+  useEffect(() => {
+    const loadModel = async () => {
+      try {
+        const model = await getHealthModel();
+        setModelContent(model);
+      } catch (error) {
+        console.error("Error loading health model:", error);
+        // Fallback content if loading fails
+        setModelContent(`model
   schema 1.1
   type jurisdiction
     relations
@@ -25,15 +41,18 @@ const modelPreview = `model
       define viewer: owner or guardian from owner or doctor
       define doctor: [doctor] or doctor from jurisdiction
       define can_view: viewer
-      define can_edit: doctor`;
+      define can_edit: doctor`);
+      }
+    };
 
-export const dynamic = "force-dynamic";
-export default function Health() {
-  const [currentUser, setCurrentUser] = useState<User>(getCurrentUser());
-  const [users] = useState<User[]>(getUsers());
-  const [healthRecords, setHealthRecords] = useState<Array<HealthRecord>>([]);
+    loadModel();
+  }, []);
+
   const handleSetCurrentUser = (user: string) => {
-    setCurrentUser(users.find((u) => u.id === user));
+    const foundUser = users.find((u) => u.id === user);
+    if (foundUser) {
+      setCurrentUser(foundUser);
+    }
   };
   useEffect(() => {
     getHealthReports(currentUser.id, !!currentUser?.doctor).then((records) => {
@@ -84,7 +103,7 @@ export default function Health() {
           </p>
         </footer>
       </div>
-      <ModelPreview model={modelPreview} />
+      <ModelPreview model={modelContent} />
     </div>
   );
 }
