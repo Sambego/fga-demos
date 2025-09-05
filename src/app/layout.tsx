@@ -114,9 +114,9 @@ export default async function RootLayout({
                           </Link>
                         </NavigationMenuLink>
                       </li>
-                      <li className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors focus:bg-accent focus:text-accent-foreground text-muted-foreground">
+                      <li className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
                         <NavigationMenuLink asChild>
-                          <Link href="/" className="cursor-not-allowed">
+                          <Link href="/ai">
                             <div className="text-sm font-medium leading-none">
                               <p className="text-xl font-bold tracking-wide">
                                 <Bot className="inline mr-2" />
@@ -124,7 +124,7 @@ export default async function RootLayout({
                               </p>
                             </div>
                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Comming soon!
+                              Query documents with AI and fine-grained authorization.
                             </p>
                           </Link>
                         </NavigationMenuLink>
