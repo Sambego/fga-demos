@@ -1,5 +1,5 @@
 import {
-  ClientBatchCheckRequest,
+  ClientBatchCheckItem,
   ClientCheckRequest,
   OpenFgaClient,
 } from "@openfga/sdk";
@@ -91,22 +91,23 @@ export async function checkFgaUserPermissionsForFile(
   user: string,
   permissions: Array<string>
 ) {
-  const checkResults = await openFga.batchCheck(
-    permissions.map(
-      (permission: string): ClientCheckRequest => ({
+  const checkResults = await openFga.batchCheck({
+    checks: permissions.map(
+      (permission: string, index: number): ClientBatchCheckItem => ({
         user: `user:${user}`,
         relation: permission,
         object: `file:${file}`,
+        correlationId: `check-${index}`, // Required in v0.8.0
       })
-    ) as ClientBatchCheckRequest,
-    {
-      storeId: process.env.FGA_DRIVE_STORE,
-      authorizationModelId: process.env.FGA_DRIVE_MODEL,
-    }
-  );
-  return checkResults.responses.reduce(
-    (p, checkResult, i) => ({
-      ...p,
+    ),
+  }, {
+    storeId: process.env.FGA_DRIVE_STORE,
+    authorizationModelId: process.env.FGA_DRIVE_MODEL,
+  });
+  
+  return checkResults.result.reduce(
+    (result: Record<string, boolean>, checkResult, i) => ({
+      ...result,
       [permissions[i]]: !!checkResult.allowed,
     }),
     {}
