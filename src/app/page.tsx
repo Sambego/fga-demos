@@ -2,14 +2,30 @@
 import Accounts from "@/components/accounts";
 import { getCurrentUser, getUsers } from "@/data/user";
 import Drive from "@/components/drive";
-import { getFiles } from "./actions";
-import { Suspense, useEffect, useState } from "react";
+import { getFiles, getDriveModel } from "./actions";
+import { useEffect, useState } from "react";
 import { User } from "@/data/user";
 import { File } from "@/data/files";
 import { CircleOff, HardDrive } from "lucide-react";
 import ModelPreview from "@/components/model-preview";
 
-const modelPreview = `model
+export const dynamic = "force-dynamic";
+export default function Home() {
+  const [currentUser, setCurrentUser] = useState<string>(getCurrentUser().id);
+  const [users] = useState<User[]>(getUsers());
+  const [files, setFiles] = useState<Array<File>>([]);
+  const [modelContent, setModelContent] = useState<string>("");
+
+  // Load the FGA model content on component mount
+  useEffect(() => {
+    const loadModel = async () => {
+      try {
+        const model = await getDriveModel();
+        setModelContent(model);
+      } catch (error) {
+        console.error("Error loading drive model:", error);
+        // Fallback content if loading fails
+        setModelContent(`model
   schema 1.1
     type user
     type file
@@ -21,18 +37,11 @@ const modelPreview = `model
         define can_delete: owner
         define can_share: editor
         define can_edit: editor
-        define can_view: viewer`;
+        define can_view: viewer`);
+      }
+    };
 
-export const dynamic = "force-dynamic";
-export default function Home() {
-  const [currentUser, setCurrentUser] = useState<string>(getCurrentUser().id);
-  const [users] = useState<User[]>(getUsers());
-  const [files, setFiles] = useState<Array<File>>([]);
-
-  useEffect(() => {
-    getFiles(currentUser).then((files) => {
-      setFiles(files);
-    });
+    loadModel();
   }, []);
 
   useEffect(() => {
@@ -66,7 +75,7 @@ export default function Home() {
           </p>
         )}
       </div>
-      <ModelPreview model={modelPreview} />
+      <ModelPreview model={modelContent} />
     </div>
   );
 }
