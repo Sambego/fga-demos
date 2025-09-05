@@ -4,13 +4,30 @@ import { BadgeEuro, Baby, PiggyBank } from "lucide-react";
 import { getCurrentUser, getUsers, User } from "@/data/user";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { getBankAccounts } from "@/app/actions";
+import { getBankAccounts, getBankModel } from "@/app/actions";
 import { BankAccount } from "@/data/bank-accounts";
 import BankAccountComponent from "@/components/bank-account";
 import { Switch } from "@/components/ui/switch";
 import ModelPreview from "@/components/model-preview";
 
-const modelPreview = `model
+export default function Home() {
+  const [currentUser, setCurrentUser] = useState<string>(getCurrentUser().id);
+  const [users] = useState<User[]>(getUsers());
+  const [bankAccounts, setBankAccounts] = useState<Array<BankAccount>>([]);
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [yearSwitchState, setYearSwitchState] = useState<boolean>(false);
+  const [modelContent, setModelContent] = useState<string>("");
+
+  // Load the FGA model content on component mount
+  useEffect(() => {
+    const loadModel = async () => {
+      try {
+        const model = await getBankModel();
+        setModelContent(model);
+      } catch (error) {
+        console.error("Error loading bank model:", error);
+        // Fallback content if loading fails
+        setModelContent(`model
   schema 1.1
   type user
     relations
@@ -25,14 +42,12 @@ const modelPreview = `model
   
   condition date_based_grant(current_date: timestamp, birth_date: timestamp, grant_duration: duration) {
      current_date < birth_date + grant_duration
-  }`;
+  }`);
+      }
+    };
 
-export default function Home() {
-  const [currentUser, setCurrentUser] = useState<string>(getCurrentUser().id);
-  const [users] = useState<User[]>(getUsers());
-  const [bankAccounts, setBankAccounts] = useState<Array<BankAccount>>([]);
-  const [year, setYear] = useState<number>(new Date().getFullYear());
-  const [yearSwitchState, setYearSwitchState] = useState<boolean>(false);
+    loadModel();
+  }, []);
 
   useEffect(() => {
     getBankAccounts(currentUser, year).then((accounts) => {
@@ -89,7 +104,7 @@ export default function Home() {
           {bankAccounts?.filter((account) => account.owner !== currentUser)
             .length > 0 && (
             <>
-              <h2 className="mt-10 scroll-m-20 border-b pb-2 text-lg font-semibold tracking-tight transition-colors mb-4 mt-3">
+              <h2 className="mt-10 scroll-m-20 border-b pb-2 text-lg font-semibold tracking-tight transition-colors mb-4">
                 <Baby className="inline w-6" /> Child Accounts
               </h2>
               <div className="flex place-content-between gap-4">
@@ -132,7 +147,7 @@ export default function Home() {
           </Card>
         </footer>
       </div>
-      <ModelPreview model={modelPreview} />
+      <ModelPreview model={modelContent} />
     </div>
   );
 }
