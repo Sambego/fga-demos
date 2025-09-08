@@ -1,4 +1,12 @@
-This application has a few small demos illustrating how to leverage OpenFGA to deal with authorizaion.
+This application has a few small demos illustrating how to leverage OpenFGA/Auth0 FGA to deal with authorization.
+
+## Configuration
+
+### Brand Configuration
+This demo supports both OpenFGA and Auth0 FGA branding. You can configure which brand to use by setting the `FGA_BRAND` environment variable in your `.env.local` file:
+
+- `FGA_BRAND=OpenFGA` (default) - Uses OpenFGA branding, logos, and documentation links
+- `FGA_BRAND=Auth0 FGA` - Uses Auth0 FGA branding, logos, and documentation links
 
 ## Getting Started
 
@@ -11,11 +19,13 @@ docker run -p 8080:8080 -p 8081:8081 -p 3000:3000 openfga/openfga run
 
 ### Create a .env file
 
-Copy the `.env.sample` file and add the OpenFGA url. You should only do this once, the first time you setup the project.
+Copy the `.env.sample` file and add the OpenFGA url and brand configuration. You should only do this once, the first time you setup the project.
 
 ```
 cp .env.sample .env.local
 ```
+
+Edit the `.env.local` file to configure your FGA API URL and preferred brand.
 
 ### Start your development server
 
@@ -29,7 +39,7 @@ pnpm dev
 bun dev
 ```
 
-This will first run a setup script to create the demo OpenFGA stores, models, and populate them with some example tuples.
+This will first run a setup script to create the demo FGA stores, models, and populate them with some example tuples.
 
 Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
 

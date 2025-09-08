@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  env: {
+    FGA_BRAND: process.env.FGA_BRAND,
+  },
 };
 
 export default nextConfig;

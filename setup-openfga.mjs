@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { OpenFgaClient } from "@openfga/sdk";
 import { readFile, writeFile } from "fs/promises";
+import { getBrandDisplayName } from "./branding.mjs";
 
 dotenv.config({ debug: false, path: "./.env.local" });
 
@@ -9,35 +10,41 @@ export const openFga = new OpenFgaClient({
 });
 
 export async function setupOpenFGA() {
+  const brandName = getBrandDisplayName();
   const driveStoreName = "FGA Drive";
   const bankStoreName = "FGA Bank";
   const healthStoreName = "FGA Health";
+  const ragStoreName = "FGA AI - RAG";
+
   let driveStore;
   let bankStore;
   let healthStore;
+  let ragStore;
+
   let driveModel;
   let bankModel;
   let healthModel;
+  let ragModel;
 
   try {
     const createStore = async (name) => {
-      console.log(`- Creating a new OpenFGA store (${name})`);
+      console.log(`- Creating a new ${brandName} store (${name})`);
       const store = await openFga.createStore({
         name: name,
       });
       console.log(
-        `- OpenFGA store (${name}) created: ${store.name} - ${store.id}`
+        `- ${brandName} store (${name}) created: ${store.name} - ${store.id}`
       );
       return store?.id;
     };
 
     const createModel = async (store, json, name) => {
-      console.log(`- Creating OpenFGA Model for ${name}, ${store}`);
+      console.log(`- Creating ${brandName} Model for ${name}, ${store}`);
       const model = await openFga.writeAuthorizationModel(json, {
         storeId: store,
       });
       console.log(
-        `- OpenFGA model created for ${name}: ${model?.authorization_model_id}`
+        `- ${brandName} model created for ${name}: ${model?.authorization_model_id}`
       );
       return model?.authorization_model_id;
     };
@@ -57,23 +64,29 @@ export async function setupOpenFGA() {
     };
 
     const stores = await openFga.listStores();
+    console.log(JSON.stringify(stores))
     if (stores.stores.length > 0) {
       driveStore = stores.stores.find(
         (store) => store.id === process.env.FGA_DRIVE_STORE
       )?.id;
-      console.log(`- OpenFGA Drive store: ${driveStore}`);
+      console.log(`- ${brandName} Drive store: ${driveStore}`);
       bankStore = stores.stores.find(
         (store) => store.id === process.env.FGA_BANK_STORE
       )?.id;
-      console.log(`- OpenFGA Bank store: ${bankStore}`);
+      console.log(`- ${brandName} Bank store: ${bankStore}`);
       healthStore = stores.stores.find(
         (store) => store.id === process.env.FGA_HEALTH_STORE
       )?.id;
-      console.log(`- OpenFGA Bank store: ${bankStore}`);
+      console.log(`- ${brandName} Health store: ${healthStore}`);
+      ragStore = stores.stores.find(
+        (store) => store.id === process.env.FGA_RAG_STORE
+      )?.id;
+      console.log(`- ${brandName} RAG store: ${ragStore}`);
     } else {
       driveStore = await createStore(driveStoreName);
       bankStore = await createStore(bankStoreName);
       healthStore = await createStore(healthStoreName);
+      ragStore = await createStore(ragStoreName);
     }
 
     const driveModels = await openFga.readAuthorizationModels({
@@ -81,7 +94,7 @@ export async function setupOpenFGA() {
     });
     if (driveModels.authorization_models.length > 0) {
       driveModel = driveModels.authorization_models[0]?.id;
-      console.log(`- OpenFGA Drive model: ${driveModel}`);
+      console.log(`- ${brandName} Drive model: ${driveModel}`);
     } else {
       const driveModelJSON = await readFile(
         process.cwd() + "/openfga/drive.model.json",
@@ -108,7 +121,7 @@ export async function setupOpenFGA() {
     });
     if (bankModels.authorization_models.length > 0) {
       bankModel = bankModels.authorization_models[0]?.id;
-      console.log(`- OpenFGA Bank model: ${bankModel}`);
+      console.log(`- ${brandName} Bank model: ${bankModel}`);
     } else {
       const bankModelJSON = await readFile(
         process.cwd() + "/openfga/bank.model.json",
@@ -142,7 +155,7 @@ export async function setupOpenFGA() {
     });
     if (healthModels.authorization_models.length > 0) {
       healthModel = healthModels.authorization_models[0]?.id;
-      console.log(`- OpenFGA Health model: ${healthModel}`);
+      console.log(`- ${brandName} Health model: ${healthModel}`);
     } else {
       const healthModelJSON = await readFile(
         process.cwd() + "/openfga/health.model.json",
@@ -211,9 +224,45 @@ export async function setupOpenFGA() {
       ]);
     }
 
+    // AI model 
+
+     const ragModels = await openFga.readAuthorizationModels({
+      storeId: ragStore,
+    });
+
+    if (ragModels.authorization_models.length > 0) {
+      ragModel = healthModels.authorization_models[0]?.id;
+      console.log(`- ${brandName} RAG model: ${ragModel}`);
+    } else {
+      const ragModelJSON = await readFile(
+        process.cwd() + "/openfga/rag.model.json",
+        "utf8"
+      );
+
+      ragModel = await createModel(
+        ragStore,
+        ragModelJSON,
+        ragStoreName
+      );
+
+      await writeInitialTuples(ragStore, ragModel, ragStoreName, [
+        {
+          user: "user:*",
+          relation: "viewer",
+          object: "doc:public-doc",
+        },
+        {
+          user: "user:subscriber",
+          relation: "viewer",
+          object: "doc:private-doc",
+        },
+      ]);
+    }
+
+
     await writeFile(
       "./.env.local",
-      `FGA_API_URL=${process.env.FGA_API_URL}\nFGA_DRIVE_STORE=${driveStore}\nFGA_DRIVE_MODEL=${driveModel}\nFGA_BANK_STORE=${bankStore}\nFGA_BANK_MODEL=${bankModel}\nFGA_HEALTH_STORE=${healthStore}\nFGA_HEALTH_MODEL=${healthModel}`
+      `FGA_API_URL=${process.env.FGA_API_URL}\nOPENAI_API_KEY=${process.env.OPENAI_API_KEY}\nFGA_BRAND=${process.env.FGA_BRAND || 'OpenFGA'}\nFGA_DRIVE_STORE=${driveStore}\nFGA_DRIVE_MODEL=${driveModel}\nFGA_BANK_STORE=${bankStore}\nFGA_BANK_MODEL=${bankModel}\nFGA_HEALTH_STORE=${healthStore}\nFGA_HEALTH_MODEL=${healthModel}\nFGA_RAG_STORE=${ragStore}\nFGA_RAG_MODEL=${ragModel}`
     );
   } catch (error) {
     console.error(error);
@@ -221,6 +270,6 @@ export async function setupOpenFGA() {
 }
 
 (async () => {
-  console.log("Starting OpenFGA Setup");
+  console.log("Starting FGA Setup");
   return await setupOpenFGA();
 })();

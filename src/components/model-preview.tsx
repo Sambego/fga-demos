@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import CodeComponent from "@/components/code";
 import Link from "next/link";
+import { brand } from "@/lib/branding";
 
 export default function ModelPreview({ model }: { model: string }) {
   return (
@@ -19,23 +20,22 @@ export default function ModelPreview({ model }: { model: string }) {
         <DialogTrigger asChild>
           <Button>
             <Code />
-            Show OpenFGA Model
+            Show {brand.name} Model
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>OpenFGA Model</DialogTitle>
+            <DialogTitle>{brand.name} Model</DialogTitle>
           </DialogHeader>
           <CodeComponent value={model} language="yaml" />
           <DialogFooter>
             <Link
-              href="https://openfga.dev/docs/modeling/getting-started"
+              href={`${brand.docsUrl}/modeling/getting-started`}
               target="_blank"
-              rel="noopener noreferrer"
-            >
+              rel="noopener noreferrer">
               <Button>
                 <BookOpenText />
-                OpenFGA modeling documentation
+                {brand.name} modeling documentation
               </Button>
             </Link>
           </DialogFooter>

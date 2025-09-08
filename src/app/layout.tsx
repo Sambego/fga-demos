@@ -21,6 +21,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import Link from "next/link";
+import { brand } from "@/lib/branding";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OpenFGA Booth Demo",
-  description: "A quick demonstration of OpenFGA",
+  title: `${brand.name} Booth Demo`,
+  description: `A quick demonstration of ${brand.name}`,
 };
 
 export default async function RootLayout({
@@ -53,20 +54,20 @@ export default async function RootLayout({
               <NavigationMenuList className="gap-2">
                 <NavigationMenuItem>
                   <img
-                    src="/openfga-logo.svg"
-                    alt="The OpenFGA Logo"
-                    className="w-10"
+                    src={brand.logoPath}
+                    alt={brand.logoAlt}
+                    className="h-10 w-auto max-w-24"
                   />
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>
-                    <Wand className="inline mr-2" /> OpenFGA Demos
+                    <Wand className="inline mr-2" /> {brand.name} Demos
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="flex">
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[600px] md:grid-cols-2 lg:w-[600px]">
                       <li className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <Link href="/" passHref legacyBehavior>
-                          <NavigationMenuLink>
+                        <NavigationMenuLink asChild>
+                          <Link href="/">
                             <div className="text-sm font-medium leading-non">
                               <p className="text-xl font-bold tracking-wide">
                                 <HardDrive className="inline mr-2" />
@@ -77,12 +78,12 @@ export default async function RootLayout({
                               Share your online files with other members in your
                               organization.
                             </p>
-                          </NavigationMenuLink>
-                        </Link>
+                          </Link>
+                        </NavigationMenuLink>
                       </li>
                       <li className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <Link href="/bank" passHref legacyBehavior>
-                          <NavigationMenuLink>
+                        <NavigationMenuLink asChild>
+                          <Link href="/bank">
                             <div className="text-sm font-medium leading-non">
                               <p className="text-xl font-bold tracking-wide">
                                 <PiggyBank className="inline mr-2" />
@@ -93,12 +94,12 @@ export default async function RootLayout({
                               Manage the bank accounts of your children until
                               they turn 18 years old.
                             </p>
-                          </NavigationMenuLink>
-                        </Link>
+                          </Link>
+                        </NavigationMenuLink>
                       </li>
                       <li className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <Link href="/health" passHref legacyBehavior>
-                          <NavigationMenuLink>
+                        <NavigationMenuLink asChild>
+                          <Link href="/health">
                             <div className="text-sm font-medium leading-non">
                               <p className="text-xl font-bold tracking-wide">
                                 <HeartPulse className="inline mr-2" />
@@ -110,12 +111,12 @@ export default async function RootLayout({
                               patients. Parents can view those of their
                               children.
                             </p>
-                          </NavigationMenuLink>
-                        </Link>
+                          </Link>
+                        </NavigationMenuLink>
                       </li>
-                      <li className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors focus:bg-accent focus:text-accent-foreground text-muted-foreground">
-                        <Link href="/" passHref legacyBehavior>
-                          <NavigationMenuLink className="cursor-not-allowed">
+                      <li className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
+                        <NavigationMenuLink asChild>
+                          <Link href="/ai">
                             <div className="text-sm font-medium leading-none">
                               <p className="text-xl font-bold tracking-wide">
                                 <Bot className="inline mr-2" />
@@ -123,32 +124,34 @@ export default async function RootLayout({
                               </p>
                             </div>
                             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Comming soon!
+                              Query documents with AI and fine-grained authorization.
                             </p>
-                          </NavigationMenuLink>
-                        </Link>
+                          </Link>
+                        </NavigationMenuLink>
                       </li>
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuLink
-                  href="https://openfga.dev/docs"
+                  href={brand.docsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`${navigationMenuTriggerStyle()} gap-2`}
                 >
                   <BookOpenText />
-                  OpenFGA documentation
+                  {brand.name} documentation
                 </NavigationMenuLink>
-                <NavigationMenuLink
-                  href="https://github.com/openfga"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${navigationMenuTriggerStyle()} gap-2 bg-foreground text-background`}
-                >
-                  <Github />
-                  View the code on GitHub →
-                </NavigationMenuLink>
+                {brand.showGithub && (
+                  <NavigationMenuLink
+                    href={brand.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${navigationMenuTriggerStyle()} gap-2 bg-foreground text-background`}
+                  >
+                    <Github />
+                    {brand.githubText}
+                  </NavigationMenuLink>
+                )}
               </NavigationMenuList>
             </NavigationMenu>
           </div>
