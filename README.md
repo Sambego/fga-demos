@@ -57,7 +57,7 @@ Toggle the switch at the bottom to fast forward in time, 18 years from now.
 
 ![screenshot of the banking interface](./screenshots/bank.png)
 
-### Healt record viewer
+### Health record viewer
 This demo lets you view health records for each user.
 - Doctors can view all records of patients in their jurisdiction, like city, state or country.
 - Parents can view their own records as well as their children's
